@@ -1,0 +1,10 @@
+/bin/
+/target/
+/project/
+/.settings/
+/.cache*
+.classpath
+.project
+
+!.gitignore
+!/project/plugins.sbt
