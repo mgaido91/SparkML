@@ -12,10 +12,14 @@ class HierarchicalTreeNode(val item:Cell) {
   private[HierarchicalTreeNode] var parent:Option[HierarchicalTreeNode] = None 
   private[HierarchicalTreeNode] val children:HashSet[HierarchicalTreeNode] = HashSet[HierarchicalTreeNode]()
   
-  def setParent(parent:HierarchicalTreeNode){
-    this.parent = Option(parent)
-    this.layer = parent.layer+1
-    parent.children.add(this)
+  def setParent(parent:Option[HierarchicalTreeNode]){
+    this.parent = parent
+    if(this.parent.isDefined){
+      this.layer = parent.get.layer+1
+      this.parent.get.children.add(this)
+    }else{
+      this.parent.get.children.remove(this)
+    }
   }
   
   def addChildren(nodes:TraversableOnce[HierarchicalTreeNode]) {

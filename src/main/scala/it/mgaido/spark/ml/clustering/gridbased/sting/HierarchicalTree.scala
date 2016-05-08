@@ -1,6 +1,7 @@
 package it.mgaido.spark.ml.clustering.gridbased.sting
 
 import it.mgaido.spark.ml.clustering.Point
+import scala.collection.mutable.HashSet
 
 /**
  * @author m.gaido
@@ -20,6 +21,44 @@ class HierarchicalTree(val root:HierarchicalTreeNode) {
     }
     None
   }
+  
+  def expandTree(numOfSplits:Int) = {
+
+    applyToChildren { child => 
+      child.item.splitIntoSubcells(numOfSplits)
+      .map { x => new HierarchicalTreeNode(x) }
+      .foreach { x => 
+        x.setParent(Some(child)) 
+      }
+    }
+  }
+  
+  def filterChildren(toBeMantained:Set[Cell]){
+    
+     applyToChildren { child => 
+       if(! toBeMantained.contains(child.item) ){
+         child.setParent(None)
+       }
+     }
+     
+    
+  }
+  
+  private [this] def applyToChildren(f:(HierarchicalTreeNode)=>Unit ):Unit = {
+    var currentNodes = this.root.getChildren()
+    while ( !currentNodes.isEmpty ){ 
+      val newNodes = new HashSet[HierarchicalTreeNode]
+      for ( node <- currentNodes ){
+        if(node.isLeaf()){
+          f(node)
+        }else{
+          newNodes ++= node.getChildren()
+        }
+        currentNodes = newNodes
+      } 
+    }
+  }
+  
 }
 
 object HierarchicalTree {
@@ -29,12 +68,14 @@ object HierarchicalTree {
         )
   }
   
+  
+  
   private def recursiveGenerateChildren(node:HierarchicalTreeNode, levelsToDo:Int, numOfSplits: Int):HierarchicalTreeNode = {
     if(levelsToDo>0){
       node.item.splitIntoSubcells(numOfSplits)
           .map { x => new HierarchicalTreeNode(x) }
           .foreach { x => 
-            x.setParent(node) 
+            x.setParent(Some(node)) 
             recursiveGenerateChildren(x, levelsToDo-1, numOfSplits)
           }
     }
