@@ -60,8 +60,10 @@ object STING {
       
     }    
     
-    //TODO: merge cells
+    tree.mergeAdjacentCells()
     
+    //TODO: create properly the model
+
     new STINGModel
   }
  

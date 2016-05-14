@@ -58,6 +58,14 @@ class HierarchicalTree(val root:HierarchicalTreeNode) {
       } 
     }
   }
+
+  def mergeAdjacentCells():Iterable[Cell] = {
+    //TODO: To be implemented
+    
+    val cells = new scala.collection.mutable.ArrayBuffer[Cell]
+    
+    ???
+  }
   
 }
 
