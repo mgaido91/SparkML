@@ -75,6 +75,31 @@ private[sting] class Cell(val boundaries:Array[Boundary]) {
     
   }
   
+  override def toString():String = s"Cell ( $boundaries , points = $numberOfPoints )"
+
+  def isAdjacentTo(other: Cell) = {
+    assert(this.boundaries.length == other.boundaries.length)
+    
+    this.boundaries.zip(other.boundaries).forall{
+      case (thisBoundary, otherBoundary) =>
+        thisBoundary.lowerBound <= otherBoundary.upperBound && 
+        thisBoundary.upperBound >= otherBoundary.lowerBound
+    }
+  }
+
+  def mergeWith(other: Cell) = {
+    assert(this.boundaries.length == other.boundaries.length)
+    
+    other.boundaries.zip(this.boundaries).map({
+      case (otherBound, thisBound) => 
+        Boundary(math.min(otherBound.lowerBound, thisBound.lowerBound),
+            math.max(otherBound.upperBound, thisBound.upperBound))
+    }).zipWithIndex.foreach{
+      case (newB, idx) => boundaries.update(idx, newB)
+    }
+    
+  }
+  
   
 }
 

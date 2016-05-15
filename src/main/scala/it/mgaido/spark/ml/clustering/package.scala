@@ -19,5 +19,6 @@ package object clustering {
       
       otherBoundary.lowerBound == this.lowerBound  && otherBoundary.upperBound == this.upperBound
     }
+    override def toString():String = "[ " + lowerBound + " - " + upperBound + " ]"
   }
 }

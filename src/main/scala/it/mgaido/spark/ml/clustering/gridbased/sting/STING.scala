@@ -23,6 +23,8 @@ object STING {
     //val cachedData = data.persist()
     assert (settings.initialLevel <= settings.numOfLevels, 
         "Inital level must be smaller than the total number of levels")
+    sc.getConf.registerKryoClasses(Array(classOf[Point],classOf[Cluster],classOf[Boundary],
+        classOf[Cell], classOf[HierarchicalTree], classOf[HierarchicalTreeNode]))
 
     val minMax = MinsMaxs(data.map { p => p.coordinates })
     val rootCell:Cell = new Cell(
@@ -60,11 +62,12 @@ object STING {
       
     }    
     
-    tree.mergeAdjacentCells()
+    val clusters = tree.mergeAdjacentCells().zipWithIndex.map{
+      case(cell, idx) => new Cluster(idx+1, cell)
+    }
     
-    //TODO: create properly the model
-
-    new STINGModel
+    
+    new STINGModel(clusters)
   }
  
 }

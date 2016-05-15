@@ -59,12 +59,37 @@ class HierarchicalTree(val root:HierarchicalTreeNode) {
     }
   }
 
-  def mergeAdjacentCells():Iterable[Cell] = {
-    //TODO: To be implemented
-    
+  def mergeAdjacentCells():Iterable[Cell] = mergeRecursive(this.root.getChildren()).toSeq
+  
+
+  private[this] def mergeRecursive(nodes: scala.collection.mutable.HashSet[HierarchicalTreeNode])
+      :scala.collection.mutable.ArrayBuffer[Cell] = {
     val cells = new scala.collection.mutable.ArrayBuffer[Cell]
+    if(nodes.isEmpty) return cells
     
-    ???
+    nodes.foreach { node => 
+      if(node.isLeaf()){
+        cells.append(node.item)
+      }else{
+        val tmpCells = mergeRecursive(node.getChildren())
+        val tmpCells2 = new scala.collection.mutable.HashSet[Cell]
+        tmpCells2 ++ tmpCells
+        for( tmpCell <- tmpCells){
+          var adjCells:Iterable[Cell] = None
+          tmpCells2 - tmpCell
+          do{
+            adjCells = tmpCells2.filter { c => c.isAdjacentTo(tmpCell) }
+            adjCells.foreach { x => tmpCell.mergeWith(x) }
+            tmpCells2 -- adjCells
+          }while(!adjCells.isEmpty)
+          cells.append(tmpCell)
+        }
+        
+      }
+      
+    }
+    
+    cells
   }
   
 }
