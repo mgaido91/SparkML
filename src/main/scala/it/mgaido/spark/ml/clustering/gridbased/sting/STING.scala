@@ -4,6 +4,7 @@ import org.apache.spark.rdd.RDD
 import it.mgaido.spark.ml.clustering.Point
 import it.mgaido.spark.ml.stats.MinsMaxs
 import it.mgaido.spark.ml.clustering._
+import it.mgaido.spark.ml.stats._
 import org.apache.spark.SparkContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,9 +27,9 @@ object STING {
     sc.getConf.registerKryoClasses(Array(classOf[Point],classOf[Cluster],classOf[Boundary],
         classOf[Cell], classOf[HierarchicalTree], classOf[HierarchicalTreeNode]))
 
-    val minMax = MinsMaxs(data.map { p => p.coordinates })
+    val coordinatesRDD = data.map { p => p.coordinates }
     val rootCell:Cell = new Cell(
-            minMax.mins.zip(minMax.maxs)
+            coordinatesRDD.getMins.zip(coordinatesRDD.getMaxs)
               .map(t => new Boundary(t._1,t._2)))
     
     //generate the tree
@@ -36,7 +37,9 @@ object STING {
         settings.initialLevel, settings.numOfSplits)
     
     for (lev <- settings.initialLevel to settings.numOfLevels){
-
+      
+      LOG.info("Starting analysis of level " + lev)
+      val timeInit = System.currentTimeMillis()
       val broadcastedTree=sc.broadcast(tree)
       
       val relevantCells = data.map( point => broadcastedTree.value.getLeafCellForPoint(point) )
@@ -49,6 +52,9 @@ object STING {
           })
           .filter { cell => cell.getDensity>=settings.minDensity }
           .collect()
+      
+      
+      LOG.info("Analysis of level took " + ((System.currentTimeMillis()-timeInit).toDouble / 1000) +" seconds." )
       LOG.info("At level " + lev + " there are " + relevantCells.length + " relevant cells.")
       if(LOG.isDebugEnabled()){
         LOG.debug("Relevant cells are: ")
@@ -61,13 +67,12 @@ object STING {
         tree.expandTree(settings.numOfSplits)
       
     }    
-    
-    val clusters = tree.mergeAdjacentCells().zipWithIndex.map{
+    //TODO
+    /*val clusters = tree.mergeAdjacentCells().zipWithIndex.map{
       case(cell, idx) => new Cluster(idx+1, cell)
-    }
-    
-    
-    new STINGModel(clusters)
+    }*/
+    //new STINGModel(clusters)
+    ???
   }
  
 }

@@ -58,10 +58,11 @@ class HierarchicalTree(val root:HierarchicalTreeNode) {
       } 
     }
   }
-
-  def mergeAdjacentCells():Iterable[Cell] = mergeRecursive(this.root.getChildren()).toSeq
   
-
+  //TODO
+  def mergeAdjacentCells():Iterable[Cell] = ???//mergeRecursive(this.root.getChildren()).toSeq
+  //it's wrong, to be debugged
+  /*
   private[this] def mergeRecursive(nodes: scala.collection.mutable.HashSet[HierarchicalTreeNode])
       :scala.collection.mutable.ArrayBuffer[Cell] = {
     val cells = new scala.collection.mutable.ArrayBuffer[Cell]
@@ -90,7 +91,7 @@ class HierarchicalTree(val root:HierarchicalTreeNode) {
     }
     
     cells
-  }
+  }*/
   
 }
 
